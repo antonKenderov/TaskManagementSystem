@@ -2,11 +2,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
+using TaskManagementSystem.Application.Interfaces;
+using TaskManagementSystem.Application.Services;
 using TaskManagementSystem.Data;
 
 namespace TaskManagementSystem
 {
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
         public static IServiceProvider Services { get; private set; } = null!;
         public static IConfiguration Config { get; private set; } = null!;
@@ -27,6 +29,8 @@ namespace TaskManagementSystem
             Config = BuildConfiguration();
 
             var services = new ServiceCollection();
+
+            services.AddSingleton<ITaskService, TaskService>();
 
             ConfigureServices(services);
 
