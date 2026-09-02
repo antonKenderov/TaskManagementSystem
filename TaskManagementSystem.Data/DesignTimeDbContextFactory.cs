@@ -3,11 +3,6 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace TaskManagementSystem.Data
 {
-    /// <summary>
-    /// Used only by the EF Core tooling (dotnet ef / Add-Migration).
-    /// The running application never goes through this class - it gets its
-    /// DbContextOptions from the composition root instead.
-    /// </summary>
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<TaskManagerDbContext>
     {
         private const string ConnectionStringVariable = "TASKMANAGER_CONNECTION";
