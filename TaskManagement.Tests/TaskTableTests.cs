@@ -4,7 +4,8 @@ using TaskManagementSystem.Domain.Enums;
 
 namespace TaskManagement.Tests
 {
-    public class TaskTableTests : IClassFixture<PostgreSqlFixture>
+    [Collection(DatabaseCollection.Name)]
+    public class TaskTableTests
     {
         private const int SeededUserId = 1;
 
