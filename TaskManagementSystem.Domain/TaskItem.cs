@@ -2,10 +2,10 @@
 
 namespace TaskManagementSystem.Domain
 {
-    public class TaskItem
+    public class TaskItem : IAuditable
     {
         public int Id { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateOnly RequiredByDate { get; set; }
         public required string Description { get; set; }
         public Status Status { get; set; }
