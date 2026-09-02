@@ -4,6 +4,7 @@
     <File Path=".env.example" />
     <File Path="docker-compose.yml" />
   </Folder>
+  <Project Path="TaskManagement.Tests/TaskManagement.Tests.csproj" Id="a82ca78f-248a-4941-a7a7-89771e4b0b88" />
   <Project Path="TaskManagementSystem.Application/TaskManagementSystem.Application.csproj" />
   <Project Path="TaskManagementSystem.Data/TaskManagementSystem.Data.csproj" />
   <Project Path="TaskManagementSystem.Domain/TaskManagementSystem.Domain.csproj" />
