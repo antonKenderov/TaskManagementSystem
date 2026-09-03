@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using TaskManagementSystem.Application.DTOs;
 using TaskManagementSystem.Application.Interfaces;
+using TaskManagementSystem.Domain.Enums;
 
 namespace TaskManagementSystem.ViewModels
 {
@@ -16,6 +17,14 @@ namespace TaskManagementSystem.ViewModels
         }
 
         public ObservableCollection<TaskTableItemDto> Tasks { get; } = new();
+        public IEnumerable<Status> Statuses => Enum.GetValues<Status>();
+        public IEnumerable<TaskType> Types => Enum.GetValues<TaskType>();
+
+        [ObservableProperty]
+        private Status _selectedStatus = Status.Open;
+
+        [ObservableProperty]
+        private TaskType _selectedType = TaskType.FeatureRequest;
 
         [ObservableProperty]
         private TaskTableItemDto? _selectedTask;

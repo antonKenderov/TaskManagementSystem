@@ -227,12 +227,12 @@
                             <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
                                 <Run Text="Type "/><Run Text="*" Foreground="#EF4444"/>
                             </TextBlock>
-                            <ComboBox Grid.Row="1" Grid.Column="2" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
+                            <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" Grid.Row="1" Grid.Column="2" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
                                 <Run Text="Initial Status "/><Run Text="*" Foreground="#EF4444"/>
                             </TextBlock>
-                            <ComboBox Grid.Row="4" Grid.Column="0" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
+                            <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStatus}" Grid.Row="4" Grid.Column="0" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="2" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
                                 <Run Text="Assigned To "/><Run Text="*" Foreground="#EF4444"/>
