@@ -59,5 +59,42 @@ namespace TaskManagementSystem.Application.Services
             return newTask.Id;
         }
 
+        public async Task<TaskDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+        {
+            await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            return await db.TaskItems
+                .AsNoTracking()
+                .Where(t => t.Id == id)
+                .Select(t => new TaskDetailDto
+                {
+                    Id = t.Id,
+                    CreatedAt = t.CreatedAt,
+                    RequiredBy = t.RequiredByDate,
+                    Description = t.Description,
+                    Status = t.Status,
+                    Type = t.Type,
+                    AssignedToUserId = t.AssignedToUserId,
+                    AssignedTo = t.AssignedTo != null
+                        ? new UserDto(t.AssignedTo.Id, t.AssignedTo.Name)
+                        : null,
+                    ModifiedAt = t.ModifiedAt,
+                    ModifiedBy = t.ModifiedBy,
+                    Comments = t.Comments
+                        .OrderByDescending(c => c.CreatedAt)
+                        .Select(c => new CommentDto
+                        {
+                            Id = c.Id,
+                            Text = c.Text,
+                            CreatedAt = c.CreatedAt,
+                            Type = c.Type,
+                            ReminderDate = c.ReminderDate,
+                            ModifiedAt = c.ModifiedAt,
+                            ModifiedBy = c.ModifiedBy
+                        })
+                        .ToList()
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+        }
     }
 }
