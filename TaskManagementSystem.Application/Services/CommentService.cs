@@ -40,9 +40,16 @@ namespace TaskManagementSystem.Application.Services
             return newComment.Id;
         }
 
-        public Task<int> DeleteCommentAsync(int commentId, CancellationToken cancellationToken = default)
+        public async Task DeleteCommentAsync(int commentId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var deleted = await db.Comments
+                                .Where(c => c.Id == commentId)
+                                .ExecuteDeleteAsync(cancellationToken);
+
+            if (deleted == 0)
+                throw new InvalidOperationException($"Comment {commentId} no longer exists.");
         }
     }
 }
