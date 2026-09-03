@@ -72,5 +72,44 @@ namespace TaskManagementSystem.Application.Services
             if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException("Comment cannot be empty.", nameof(text));
             if (text.Length > 3000) throw new ArgumentException("Comment cannot exceed 3000 characters.", nameof(text));
         }
+
+        public async Task<IReadOnlyList<CommentSearchResultDto>> SearchCommentsAsync(CommentSearchFilter filter, CancellationToken cancellationToken = default)
+        {
+            await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var query = db.Comments.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(filter.Text))
+                query = query.Where(c => EF.Functions.ILike(c.Text, $"%{filter.Text}%"));
+
+            if (filter.Type is not null)
+                query = query.Where(c => c.Type == filter.Type);
+
+            if (filter.ReminderFrom is not null)
+                query = query.Where(c => c.ReminderDate >= filter.ReminderFrom);
+
+            if (filter.ReminderTo is not null)
+                query = query.Where(c => c.ReminderDate <= filter.ReminderTo);
+
+            if (filter.AddedFrom is not null)
+                query = query.Where(c => c.CreatedAt >= filter.AddedFrom);
+
+            if (filter.AddedTo is not null)
+                query = query.Where(c => c.CreatedAt <= filter.AddedTo);
+
+            return await query
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new CommentSearchResultDto
+                {
+                    Id = c.Id,
+                    TaskItemId = c.TaskItemId,
+                    TaskDescription = c.TaskItem.Description,
+                    Text = c.Text,
+                    Type = c.Type,
+                    CreatedAt = c.CreatedAt,
+                    ReminderDate = c.ReminderDate
+                })
+                .ToListAsync(cancellationToken);
+        }
     }
 }

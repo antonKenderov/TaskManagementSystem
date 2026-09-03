@@ -8,5 +8,6 @@ namespace TaskManagementSystem.Application.Interfaces
         Task<int> CreateCommentAsync(NewCommentDto comment, CancellationToken cancellationToken = default);
         Task DeleteCommentAsync(int commentId, CancellationToken cancellationToken = default);
         Task UpdateCommentAsync(UpdateCommentDto comment, CancellationToken cancellationToken = default);
+        Task<IReadOnlyList<CommentSearchResultDto>> SearchCommentsAsync(CommentSearchFilter filter, CancellationToken cancellationToken = default);
     }
 }
