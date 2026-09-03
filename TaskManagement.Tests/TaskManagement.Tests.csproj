@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TaskManagementSystem.Data\TaskManagementSystem.Data.csproj" />
     <ProjectReference Include="..\TaskManagementSystem.Domain\TaskManagementSystem.Domain.csproj" />
+    <ProjectReference Include="..\TaskManagementSystem.Application\TaskManagementSystem.Application.csproj" />
   </ItemGroup>
 
 </Project>
