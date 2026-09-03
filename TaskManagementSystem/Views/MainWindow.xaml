@@ -16,9 +16,6 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <!-- Cursor lives on the header visual, not on the TabItem: Cursor is an
-                             inherited property and the tab's content is a logical child, so a
-                             setter on the style would give the whole screen a hand cursor. -->
                         <Border x:Name="Border" Cursor="Hand" Background="{TemplateBinding Background}" CornerRadius="8" Margin="{TemplateBinding Margin}">
                             <ContentPresenter x:Name="ContentSite"
                                           VerticalAlignment="Center"
@@ -123,9 +120,7 @@
                     <TextBlock Grid.Column="1" Text="Search" FontSize="14" VerticalAlignment="Center"/>
                 </Grid>
             </TabItem.Header>
-            <Grid>
-                <TextBlock Text="Search Engine for Comments" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
+            <views:SearchView DataContext="{Binding SearchViewModel}"/>
         </TabItem>
 
         <TabItem Style="{StaticResource SidebarTabItemStyle}">

@@ -182,6 +182,12 @@ namespace TaskManagementSystem.ViewModels
             IsDetailsVisible = true;
         }
 
+        public async Task OpenTaskAsync(int taskId)
+        {
+            await TaskDetail.LoadAsync(taskId);
+            IsDetailsVisible = true;
+        }
+
         [RelayCommand]
         private async Task CloseDetailAsync()
         {

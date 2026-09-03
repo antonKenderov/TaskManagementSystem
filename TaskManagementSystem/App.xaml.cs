@@ -56,6 +56,7 @@ namespace TaskManagementSystem
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<TasksViewModel>();
             services.AddSingleton<TaskDetailViewModel>();
+            services.AddSingleton<SearchViewModel>();
 
             services.AddSingleton<MainWindow>();
         }
