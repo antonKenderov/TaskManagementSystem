@@ -13,11 +13,13 @@
             <Setter Property="Foreground" Value="#6B7280"/>
             <Setter Property="Padding" Value="12,10"/>
             <Setter Property="Margin" Value="0,4"/>
-            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="8" Margin="{TemplateBinding Margin}">
+                        <!-- Cursor lives on the header visual, not on the TabItem: Cursor is an
+                             inherited property and the tab's content is a logical child, so a
+                             setter on the style would give the whole screen a hand cursor. -->
+                        <Border x:Name="Border" Cursor="Hand" Background="{TemplateBinding Background}" CornerRadius="8" Margin="{TemplateBinding Margin}">
                             <ContentPresenter x:Name="ContentSite"
                                           VerticalAlignment="Center"
                                           HorizontalAlignment="Stretch"
