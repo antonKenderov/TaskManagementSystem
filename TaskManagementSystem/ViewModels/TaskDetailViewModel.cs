@@ -1,8 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using TaskManagementSystem.Application.DTOs;
 using TaskManagementSystem.Application.Interfaces;
+using TaskManagementSystem.Domain.Enums;
 
 namespace TaskManagementSystem.ViewModels
 {
@@ -34,8 +35,23 @@ namespace TaskManagementSystem.ViewModels
 
         private int? _loadedTaskId;
 
+        public IEnumerable<Status> Statuses => Enum.GetValues<Status>();
+        public IEnumerable<TaskType> Types => Enum.GetValues<TaskType>();
+
+        public string FormattedTaskId => Task is null ? string.Empty : $"TSK-{Task.Id:D4}";
+
+        public DateTime? RequiredByDate =>
+            Task?.RequiredBy.ToDateTime(TimeOnly.MinValue);
+
         public DateOnly? NextActionDate =>
             Comments.Where(c => c.ReminderDate.HasValue).Min(c => c.ReminderDate);
+
+        private void NotifyDerived()
+        {
+            OnPropertyChanged(nameof(FormattedTaskId));
+            OnPropertyChanged(nameof(RequiredByDate));
+            OnPropertyChanged(nameof(NextActionDate));
+        }
 
         public async Task LoadAsync(int id, CancellationToken cancellationToken = default)
         {
@@ -62,7 +78,7 @@ namespace TaskManagementSystem.ViewModels
                     Comments.Add(comment);
                 }
 
-                OnPropertyChanged(nameof(NextActionDate));
+                NotifyDerived();
             }
             catch (Exception ex)
             {
@@ -112,7 +128,7 @@ namespace TaskManagementSystem.ViewModels
             Task = null;
             Comments.Clear();
             _loadedTaskId = null;
-            OnPropertyChanged(nameof(NextActionDate));
+            NotifyDerived();
         }
     }
 }

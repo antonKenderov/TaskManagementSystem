@@ -12,11 +12,17 @@ namespace TaskManagementSystem.ViewModels
         private readonly ITaskService _taskService;
         private readonly IUserService _userService;
 
-        public TasksViewModel(ITaskService taskService, IUserService userService)
+        public TasksViewModel(
+            ITaskService taskService,
+            IUserService userService,
+            TaskDetailViewModel taskDetail)
         {
             _taskService = taskService;
             _userService = userService;
+            TaskDetail = taskDetail;
         }
+
+        public TaskDetailViewModel TaskDetail { get; }
 
         public ObservableCollection<TaskTableItemDto> Tasks { get; } = new();
         public ObservableCollection<UserDto> Users { get; } = new();
@@ -36,6 +42,9 @@ namespace TaskManagementSystem.ViewModels
         private TaskTableItemDto? _selectedTask;
 
         public DateTime CurrentTime => DateTime.Now;
+
+        [ObservableProperty]
+        private bool _isDetailsVisible;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoadTasksCommand))]
@@ -159,6 +168,26 @@ namespace TaskManagementSystem.ViewModels
             {
                 IsSaving = false;
             }
+        }
+
+        [RelayCommand]
+        private async Task OpenTaskDetailAsync()
+        {
+            // A double click on a column header or on empty space reaches this too,
+            // so there is not necessarily a selected row.
+            if (SelectedTask is null)
+            {
+                return;
+            }
+
+            await TaskDetail.LoadAsync(SelectedTask.Id);
+            IsDetailsVisible = true;
+        }
+
+        [RelayCommand]
+        private void CloseDetail()
+        {
+            IsDetailsVisible = false;
         }
 
         [RelayCommand]

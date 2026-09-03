@@ -48,6 +48,22 @@
                 <Setter Property="RowHeight" Value="40"/>
             </Style>
 
+            <Style TargetType="DataGridRow">
+                <!-- The whole row opens the task, so it should read as clickable.
+                     The click is handled on button-up, by which point the DataGrid
+                     has already moved the selection to this row. -->
+                <Setter Property="Cursor" Value="Hand"/>
+                <EventSetter Event="PreviewMouseLeftButtonUp" Handler="OnRowClick"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#EEF2F7"/>
+                    </Trigger>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#E4EAF4"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <Style TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="Foreground" Value="#6B7280"/>
@@ -133,6 +149,14 @@
         <Grid Grid.Row="3" Margin="24,16,24,24">
             <TextBlock Text="{Binding Tasks.Count, StringFormat=Showing {0} tasks}" Foreground="#6B7280" VerticalAlignment="Center"/>
         </Grid>
+
+        <!-- Task detail. Opaque and spanning every row, so it covers the list while
+             a task is open. The wrapper carries the visibility because the control
+             itself is bound to the detail view model, not to this one. -->
+        <Border Grid.Row="0" Grid.RowSpan="4" Background="#F3F4F6"
+                Visibility="{Binding IsDetailsVisible, Converter={StaticResource BoolToVisibility}}">
+            <local:TaskDetailView DataContext="{Binding TaskDetail}"/>
+        </Border>
 
         <Grid Grid.Row="0" Grid.RowSpan="4"
               Background="#80000000"
