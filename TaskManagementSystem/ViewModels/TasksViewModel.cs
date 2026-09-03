@@ -47,7 +47,19 @@ namespace TaskManagementSystem.ViewModels
         [ObservableProperty]
         private string? _errorMessage;
 
+        [ObservableProperty]
+        private string? _newTaskDescription;
+
+        [ObservableProperty]
+        private DateTime? _newTaskRequiredBy;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(CreateTaskCommand))]
+        private bool _isSaving;
+
         private bool CanLoadTasks => !IsLoading;
+
+        private bool CanCreateTask => !IsSaving;
 
         [RelayCommand(CanExecute = nameof(CanLoadTasks))]
         private async Task LoadTasksAsync()
@@ -99,12 +111,64 @@ namespace TaskManagementSystem.ViewModels
             }
         }
 
+        [RelayCommand(CanExecute = nameof(CanCreateTask))]
+        private async Task CreateTaskAsync()
+        {
+            if (string.IsNullOrWhiteSpace(NewTaskDescription))
+            {
+                ErrorMessage = "Please enter a description.";
+                return;
+            }
+
+            if (NewTaskRequiredBy is null)
+            {
+                ErrorMessage = "Please pick a required by date.";
+                return;
+            }
+
+            if (SelectedUser is null)
+            {
+                ErrorMessage = "Please select a user to assign the task to.";
+                return;
+            }
+
+            try
+            {
+                IsSaving = true;
+                ErrorMessage = null;
+
+                var newTask = new NewTaskDto
+                {
+                    Description = NewTaskDescription,
+                    RequiredByDate = DateOnly.FromDateTime(NewTaskRequiredBy.Value),
+                    Type = SelectedType,
+                    Status = SelectedStatus,
+                    AssignedToUserId = SelectedUser.Id
+                };
+
+                await _taskService.CreateTaskAsync(newTask);
+
+                ClosePopup();
+                await LoadTasksAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Could not create the task: {ex.Message}";
+            }
+            finally
+            {
+                IsSaving = false;
+            }
+        }
+
         [RelayCommand]
         private async Task OpenPopupAsync()
         {
             // The assignee list is only needed by the form, so it is fetched when
             // the form opens rather than kept in step with the task list.
             await LoadUsersAsync();
+
+            ResetNewTaskForm();
             IsPopupOpen = true;
         }
 
@@ -112,6 +176,15 @@ namespace TaskManagementSystem.ViewModels
         private void ClosePopup()
         {
             IsPopupOpen = false;
+        }
+
+        private void ResetNewTaskForm()
+        {
+            NewTaskDescription = null;
+            NewTaskRequiredBy = null;
+            SelectedStatus = Status.Open;
+            SelectedType = TaskType.FeatureRequest;
+            ErrorMessage = null;
         }
     }
 }

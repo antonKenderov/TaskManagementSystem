@@ -198,9 +198,12 @@
                                 <Run Text="Description "/>
                                 <Run Text="*" Foreground="#EF4444"/>
                             </TextBlock>
-                            <TextBlock Text="0 / 2000" Foreground="#9CA3AF" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Bottom"/>
+                            <TextBlock Text="{Binding NewTaskDescription.Length, FallbackValue=0, StringFormat={}{0} / 2000}"
+                                       Foreground="#9CA3AF" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Bottom"/>
                         </Grid>
-                        <TextBox Height="80" TextWrapping="Wrap" AcceptsReturn="True"
+                        <TextBox Text="{Binding NewTaskDescription, UpdateSourceTrigger=PropertyChanged}"
+                                 MaxLength="2000"
+                                 Height="80" TextWrapping="Wrap" AcceptsReturn="True"
                                  BorderBrush="#D1D5DB" BorderThickness="1" Padding="10" Foreground="#374151"
                                  Margin="0,0,0,20"/>
 
@@ -222,7 +225,8 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
                                 <Run Text="Required By Date "/><Run Text="*" Foreground="#EF4444"/>
                             </TextBlock>
-                            <DatePicker Grid.Row="1" Grid.Column="0" BorderBrush="#D1D5DB" Padding="4" Foreground="#374151"/>
+                            <DatePicker SelectedDate="{Binding NewTaskRequiredBy}"
+                                        Grid.Row="1" Grid.Column="0" BorderBrush="#D1D5DB" Padding="4" Foreground="#374151"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
                                 <Run Text="Type "/><Run Text="*" Foreground="#EF4444"/>
@@ -246,12 +250,34 @@
 
                     <Border Grid.Row="2" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0"
                             CornerRadius="0,0,8,8" Padding="20,16">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Validation and save failures land here; hidden while empty. -->
+                            <TextBlock Grid.Column="0" Text="{Binding ErrorMessage}" Foreground="#B91C1C"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                             <Button Content="Cancel" Command="{Binding ClosePopupCommand}"
                                     Background="White" BorderBrush="#D1D5DB" BorderThickness="1"
                                     Foreground="#374151" FontWeight="SemiBold" Padding="16,8" Cursor="Hand" Margin="0,0,12,0"/>
 
-                            <Button Background="#2C364C" BorderThickness="0" Foreground="White" FontWeight="SemiBold"
+                            <Button Command="{Binding CreateTaskCommand}"
+                                    Background="#2C364C" BorderThickness="0" Foreground="White" FontWeight="SemiBold"
                                     Padding="16,8" Cursor="Hand">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
@@ -259,7 +285,8 @@
                                     <TextBlock Text="Create Task" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
-                        </StackPanel>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                 </Grid>
             </Border>
