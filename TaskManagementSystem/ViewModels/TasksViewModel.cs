@@ -173,8 +173,6 @@ namespace TaskManagementSystem.ViewModels
         [RelayCommand]
         private async Task OpenTaskDetailAsync()
         {
-            // A double click on a column header or on empty space reaches this too,
-            // so there is not necessarily a selected row.
             if (SelectedTask is null)
             {
                 return;
@@ -185,9 +183,10 @@ namespace TaskManagementSystem.ViewModels
         }
 
         [RelayCommand]
-        private void CloseDetail()
+        private async Task CloseDetailAsync()
         {
             IsDetailsVisible = false;
+            await LoadTasksAsync();
         }
 
         [RelayCommand]

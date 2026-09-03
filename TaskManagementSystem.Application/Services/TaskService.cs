@@ -96,5 +96,24 @@ namespace TaskManagementSystem.Application.Services
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
+
+        public async Task UpdateTaskAsync(UpdateTaskDto task, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(task.Description)) throw new ArgumentException("Description cannot be empty.", nameof(task.Description));
+            if (task.Description.Length > 2000) throw new ArgumentException("Description cannot exceed 2000 characters.", nameof(task.Description));
+
+            await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var existing = await db.TaskItems.FirstOrDefaultAsync(t => t.Id == task.Id, cancellationToken)
+                ?? throw new InvalidOperationException($"Task {task.Id} no longer exists.");
+
+            existing.Description = task.Description;
+            existing.RequiredByDate = task.RequiredByDate;
+            existing.Status = task.Status;
+            existing.Type = task.Type;
+            existing.AssignedToUserId = task.AssignedToUserId;
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
     }
 }

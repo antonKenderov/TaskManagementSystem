@@ -68,9 +68,11 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                        <Button Content="Cancel" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" 
+                        <Button Content="Cancel" Command="{Binding CancelChangesCommand}"
+                                Background="White" BorderBrush="#E2E8F0" BorderThickness="1" 
                                 Foreground="#475569" FontWeight="SemiBold" Padding="16,8" Margin="0,0,12,0" Cursor="Hand"/>
-                        <Button Content="Save changes" Background="#2563EB" BorderThickness="0" 
+                        <Button Content="Save changes" Command="{Binding SaveChangesCommand}"
+                                Background="#2563EB" BorderThickness="0" 
                                 Foreground="White" FontWeight="SemiBold" Padding="18,8" Cursor="Hand"/>
                     </StackPanel>
                 </Grid>
@@ -98,7 +100,8 @@
                         
                         <StackPanel Grid.Row="1" Margin="0,0,0,16">
                             <TextBlock Text="Description" Style="{StaticResource FieldLabelStyle}"/>
-                            <TextBox Text="{Binding Task.Description}" Height="70" TextWrapping="Wrap" AcceptsReturn="True"/>
+                            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" MaxLength="2000"
+                                     Height="70" TextWrapping="Wrap" AcceptsReturn="True"/>
                         </StackPanel>
                         
                         <Grid Grid.Row="2" Margin="0,0,0,16">
@@ -110,12 +113,12 @@
 
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding Task.Status}" Padding="10,8"/>
+                                <ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStatus}" Padding="10,8"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Type" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding Task.Type}" Padding="10,8"/>
+                                <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" Padding="10,8"/>
                             </StackPanel>
                         </Grid>
 
@@ -128,12 +131,12 @@
 
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Assigned To" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding Task.AssignedTo.Name, Mode=OneWay}" IsReadOnly="True" Background="#F1F5F9" Foreground="#64748B"/>
+                                <ComboBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" DisplayMemberPath="Name" Padding="10,8"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Required By Date" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding RequiredByDate, Mode=OneWay}" Padding="8,6"/>
+                                <DatePicker SelectedDate="{Binding RequiredByDate}" Padding="8,6"/>
                             </StackPanel>
                         </Grid>
 

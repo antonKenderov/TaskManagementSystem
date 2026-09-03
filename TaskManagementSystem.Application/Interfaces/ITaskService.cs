@@ -7,5 +7,6 @@ namespace TaskManagementSystem.Application.Interfaces
         Task<IReadOnlyList<TaskTableItemDto>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<int> CreateTaskAsync(NewTaskDto task, CancellationToken cancellationToken = default);
         Task<TaskDetailDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+        Task UpdateTaskAsync(UpdateTaskDto task, CancellationToken cancellationToken = default);
     }
 }
