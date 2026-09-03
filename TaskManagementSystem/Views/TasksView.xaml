@@ -48,14 +48,6 @@
                 <Setter Property="RowHeight" Value="40"/>
             </Style>
 
-            <Style x:Key="TaskRowStyle" TargetType="DataGridRow">
-                <Style.Triggers>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="#EDF1FC"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-
             <Style TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="Foreground" Value="#6B7280"/>
@@ -67,20 +59,12 @@
 
             <Style TargetType="DataGridCell">
                 <Setter Property="Padding" Value="12,0"/>
-                <Setter Property="Foreground" Value="#374151"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridCell">
                             <Border Padding="{TemplateBinding Padding}" Background="Transparent">
                                 <ContentPresenter VerticalAlignment="Center"/>
                             </Border>
-                            <ControlTemplate.Triggers>
-                                <!-- The custom template drops the default selection brushes,
-                                     so keep the text readable on the selected row. -->
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Foreground" Value="#111827"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -95,7 +79,7 @@
 
             <TextBlock Text="All Tasks" FontSize="24" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
 
-            <Button Grid.Column="1" Style="{StaticResource PrimaryButtonStyle}">
+            <Button Command="{Binding OpenPopupCommand}" Grid.Column="1" Style="{StaticResource PrimaryButtonStyle}">
                 <StackPanel Orientation="Horizontal">
                     <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
                     <TextBlock Text="New Task" VerticalAlignment="Center"/>
@@ -122,7 +106,6 @@
         </Border>
 
         <DataGrid Grid.Row="2" Margin="24,0,24,0"
-                  RowStyle="{StaticResource TaskRowStyle}"
                   ItemsSource="{Binding Tasks}"
                   SelectedItem="{Binding SelectedTask}"
                   IsReadOnly="True">
@@ -149,6 +132,134 @@
 
         <Grid Grid.Row="3" Margin="24,16,24,24">
             <TextBlock Text="{Binding Tasks.Count, StringFormat=Showing {0} tasks}" Foreground="#6B7280" VerticalAlignment="Center"/>
+        </Grid>
+
+        <Grid Grid.Row="0" Grid.RowSpan="4"
+              Background="#80000000"
+              Visibility="{Binding IsPopupOpen, Converter={StaticResource BoolToVisibility}}">
+
+            <Border Width="680" Background="White" CornerRadius="8"
+                    VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" Opacity="0.15" BlurRadius="20" ShadowDepth="4"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Background="#2C364C" CornerRadius="8,8,0,0" Padding="20,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Path Grid.Column="0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M12.9,14.5L15.8,11.6L14.4,10.2L11.5,13.1L10.1,11.7L8.7,13.1L11.5,16L12.9,14.5Z"
+                                  Fill="#94A3B8" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+                            <TextBlock Grid.Column="1" Text="New Task" Foreground="White" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+
+                            <Button Grid.Column="2" Command="{Binding ClosePopupCommand}"
+                                    Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                                      Fill="#94A3B8" Width="14" Height="14" Stretch="Uniform"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Margin="24">
+
+                        <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="4" Padding="16,12" Margin="0,0,0,20">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <Path Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"
+                                          Fill="#9CA3AF" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                                    <TextBlock Foreground="#6B7280" VerticalAlignment="Center">
+                                        <Run Text="Created Date: "/>
+                                        <Run Text="{Binding CurrentTime, Mode=OneWay, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}" Foreground="#374151"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                    <Ellipse Width="8" Height="8" Fill="#2563EB" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Status: Draft" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock FontWeight="SemiBold" Foreground="#4B5563">
+                                <Run Text="Description "/>
+                                <Run Text="*" Foreground="#EF4444"/>
+                            </TextBlock>
+                            <TextBlock Text="0 / 2000" Foreground="#9CA3AF" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Bottom"/>
+                        </Grid>
+                        <TextBox Height="80" TextWrapping="Wrap" AcceptsReturn="True"
+                                 BorderBrush="#D1D5DB" BorderThickness="1" Padding="10" Foreground="#374151"
+                                 Margin="0,0,0,20"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
+                                <Run Text="Required By Date "/><Run Text="*" Foreground="#EF4444"/>
+                            </TextBlock>
+                            <DatePicker Grid.Row="1" Grid.Column="0" BorderBrush="#D1D5DB" Padding="4" Foreground="#374151"/>
+
+                            <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
+                                <Run Text="Type "/><Run Text="*" Foreground="#EF4444"/>
+                            </TextBlock>
+                            <ComboBox Grid.Row="1" Grid.Column="2" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
+                                <Run Text="Initial Status "/><Run Text="*" Foreground="#EF4444"/>
+                            </TextBlock>
+                            <ComboBox Grid.Row="4" Grid.Column="0" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="2" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
+                                <Run Text="Assigned To "/><Run Text="*" Foreground="#EF4444"/>
+                            </TextBlock>
+                            <ComboBox Grid.Row="4" Grid.Column="2" BorderBrush="#D1D5DB" Padding="10,6" Foreground="#374151"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Border Grid.Row="2" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="0,1,0,0"
+                            CornerRadius="0,0,8,8" Padding="20,16">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Cancel" Command="{Binding ClosePopupCommand}"
+                                    Background="White" BorderBrush="#D1D5DB" BorderThickness="1"
+                                    Foreground="#374151" FontWeight="SemiBold" Padding="16,8" Cursor="Hand" Margin="0,0,12,0"/>
+
+                            <Button Background="#2C364C" BorderThickness="0" Foreground="White" FontWeight="SemiBold"
+                                    Padding="16,8" Cursor="Hand">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M17,13H13V17H11V13H7V11H11V7H13V11H17M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                                          Fill="White" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Create Task" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

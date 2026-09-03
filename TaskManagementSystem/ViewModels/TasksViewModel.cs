@@ -20,9 +20,14 @@ namespace TaskManagementSystem.ViewModels
         [ObservableProperty]
         private TaskTableItemDto? _selectedTask;
 
+        public DateTime CurrentTime => DateTime.Now;
+
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoadTasksCommand))]
         private bool _isLoading;
+
+        [ObservableProperty]
+        private bool _isPopupOpen;
 
         [ObservableProperty]
         private string? _errorMessage;
@@ -54,6 +59,18 @@ namespace TaskManagementSystem.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        [RelayCommand]
+        private void OpenPopup()
+        {
+            IsPopupOpen = true;
+        }
+
+        [RelayCommand]
+        private void ClosePopup()
+        {
+            IsPopupOpen = false;
         }
     }
 }
