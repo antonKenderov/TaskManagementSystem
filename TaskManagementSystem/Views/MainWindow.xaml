@@ -82,7 +82,7 @@
         </Style>
     </Window.Resources>
 
-    <TabControl Style="{StaticResource SidebarTabControlStyle}" FontFamily="Segoe UI" SelectedIndex="0">
+    <TabControl Style="{StaticResource SidebarTabControlStyle}" FontFamily="Segoe UI" SelectedIndex="{Binding SelectedTabIndex}">
 
         <TabItem Style="{StaticResource SidebarTabItemStyle}">
             <TabItem.Header>
@@ -99,11 +99,11 @@
 
                     <TextBlock Grid.Column="1" Text="All Tasks" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Column="2" Text="0" FontWeight="Bold" FontSize="12" Foreground="#8B95A5" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Grid.Column="2" Text="{Binding TasksViewModel.Tasks.Count}" FontWeight="Bold" FontSize="12" Foreground="#8B95A5" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 </Grid>
             </TabItem.Header>
 
-            <views:TaskView x:Name="AllTasksUserControl" />
+            <views:TasksView DataContext="{Binding TasksViewModel}"/>
         </TabItem>
         
         <TabItem Style="{StaticResource SidebarTabItemStyle}">

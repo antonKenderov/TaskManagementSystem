@@ -5,6 +5,7 @@ using System.Windows;
 using TaskManagementSystem.Application.Interfaces;
 using TaskManagementSystem.Application.Services;
 using TaskManagementSystem.Data;
+using TaskManagementSystem.ViewModels;
 
 namespace TaskManagementSystem
 {
@@ -30,8 +31,6 @@ namespace TaskManagementSystem
 
             var services = new ServiceCollection();
 
-            services.AddSingleton<ITaskService, TaskService>();
-
             ConfigureServices(services);
 
             Services = services.BuildServiceProvider();
@@ -49,6 +48,11 @@ namespace TaskManagementSystem
 
             services.AddDbContextFactory<TaskManagerDbContext>(options =>
                 options.UseNpgsql(connectionString));
+
+            services.AddSingleton<ITaskService, TaskService>();
+
+            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<TasksViewModel>();
 
             services.AddSingleton<MainWindow>();
         }

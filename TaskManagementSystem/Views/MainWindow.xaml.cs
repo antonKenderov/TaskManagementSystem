@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TaskManagementSystem.ViewModels;
 
 namespace TaskManagementSystem
 {
@@ -7,10 +8,10 @@ namespace TaskManagementSystem
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
         }
-
     }
 }
