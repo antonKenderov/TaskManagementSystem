@@ -51,6 +51,7 @@ namespace TaskManagementSystem
 
             services.AddSingleton<ITaskService, TaskService>();
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<ICommentService, CommentService>();
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<TasksViewModel>();
