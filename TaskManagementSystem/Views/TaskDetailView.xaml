@@ -22,6 +22,25 @@
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
+        <Style x:Key="CommentLinkStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2563EB"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="TextBox">
             <Setter Property="BorderBrush" Value="#CBD5E1"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -205,6 +224,18 @@
                                                 <TextBlock Text="{Binding CreatedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}" Foreground="#94A3B8" FontSize="11" Margin="8,1,0,0"/>
                                             </StackPanel>
                                             <TextBlock Text="{Binding Text}" Foreground="#334155" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0"/>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                                <Button Content="Edit"
+                                                        Style="{StaticResource CommentLinkStyle}"
+                                                        Command="{Binding DataContext.BeginEditCommentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Content="Delete"
+                                                        Style="{StaticResource CommentLinkStyle}"
+                                                        Foreground="#DC2626"
+                                                        Command="{Binding DataContext.DeleteCommentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
@@ -212,12 +243,39 @@
                         </ItemsControl>
 
                         <StackPanel Grid.Row="2">
-                            <TextBox Text="{Binding NewCommentText, UpdateSourceTrigger=PropertyChanged}" 
-                                     Height="60" TextWrapping="Wrap" AcceptsReturn="True" 
+                            <TextBox Text="{Binding NewCommentText, UpdateSourceTrigger=PropertyChanged}"
+                                     MaxLength="3000"
+                                     Height="60" TextWrapping="Wrap" AcceptsReturn="True"
                                      Padding="8" Margin="0,0,0,8"/>
-                            <Button Content="Post comment" Command="{Binding AddCommentCommand}" 
-                                    Background="White" BorderBrush="#CBD5E1" BorderThickness="1" 
-                                    Foreground="#334155" FontWeight="SemiBold" Padding="12,6" HorizontalAlignment="Left" Cursor="Hand"/>
+
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Comment type" Style="{StaticResource FieldLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding CommentTypes}"
+                                              SelectedItem="{Binding NewCommentType}" Padding="8,6"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Reminder date" Style="{StaticResource FieldLabelStyle}"/>
+                                    <DatePicker SelectedDate="{Binding NewCommentReminder}" Padding="6,4"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="{Binding CommentSubmitLabel}" Command="{Binding SaveCommentCommand}"
+                                        Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
+                                        Foreground="#334155" FontWeight="SemiBold" Padding="12,6" Cursor="Hand"/>
+                                <Button Content="Cancel edit" Command="{Binding CancelCommentEditCommand}"
+                                        Visibility="{Binding IsEditingComment, Converter={StaticResource BoolToVisibility}}"
+                                        Background="Transparent" BorderThickness="0"
+                                        Foreground="#64748B" FontWeight="SemiBold" Padding="12,6" Cursor="Hand"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
