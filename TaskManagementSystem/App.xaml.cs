@@ -50,6 +50,7 @@ namespace TaskManagementSystem
                 options.UseNpgsql(connectionString));
 
             services.AddSingleton<ITaskService, TaskService>();
+            services.AddSingleton<IUserService, UserService>();
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<TasksViewModel>();

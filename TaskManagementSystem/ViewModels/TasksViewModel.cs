@@ -10,15 +10,21 @@ namespace TaskManagementSystem.ViewModels
     public partial class TasksViewModel : ObservableObject
     {
         private readonly ITaskService _taskService;
+        private readonly IUserService _userService;
 
-        public TasksViewModel(ITaskService taskService)
+        public TasksViewModel(ITaskService taskService, IUserService userService)
         {
             _taskService = taskService;
+            _userService = userService;
         }
 
         public ObservableCollection<TaskTableItemDto> Tasks { get; } = new();
+        public ObservableCollection<UserDto> Users { get; } = new();
         public IEnumerable<Status> Statuses => Enum.GetValues<Status>();
         public IEnumerable<TaskType> Types => Enum.GetValues<TaskType>();
+
+        [ObservableProperty]
+        private UserDto? _selectedUser;
 
         [ObservableProperty]
         private Status _selectedStatus = Status.Open;
@@ -71,8 +77,34 @@ namespace TaskManagementSystem.ViewModels
         }
 
         [RelayCommand]
-        private void OpenPopup()
+        private async Task LoadUsersAsync()
         {
+            try
+            {
+                var users = await _userService.GetAllAsync();
+
+                Users.Clear();
+                foreach (var user in users)
+                {
+                    Users.Add(user);
+                }
+
+                SelectedUser ??= Users.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                Users.Clear();
+                SelectedUser = null;
+                ErrorMessage = $"Could not load the users: {ex.Message}";
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenPopupAsync()
+        {
+            // The assignee list is only needed by the form, so it is fetched when
+            // the form opens rather than kept in step with the task list.
+            await LoadUsersAsync();
             IsPopupOpen = true;
         }
 
