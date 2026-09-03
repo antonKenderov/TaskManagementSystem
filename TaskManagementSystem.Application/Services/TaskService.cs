@@ -17,12 +17,23 @@ namespace TaskManagementSystem.Application.Services
 
 
         public async Task<IReadOnlyList<TaskTableItemDto>> GetAllAsync(
+            TaskFilter? filter = null,
             CancellationToken cancellationToken = default)
         {
             await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-            return await db.TaskItems
-                .AsNoTracking()
+            var query = db.TaskItems.AsNoTracking();
+
+            if (filter?.Status is not null)
+                query = query.Where(t => t.Status == filter.Status);
+
+            if (filter?.Type is not null)
+                query = query.Where(t => t.Type == filter.Type);
+
+            if (filter?.AssignedToUserId is not null)
+                query = query.Where(t => t.AssignedToUserId == filter.AssignedToUserId);
+
+            return await query
                 .OrderByDescending(t => t.CreatedAt)
                 .Select(t => new TaskTableItemDto(
                     t.Id,

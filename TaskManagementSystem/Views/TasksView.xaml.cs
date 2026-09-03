@@ -22,6 +22,7 @@ namespace TaskManagementSystem.Views
                 viewModel.LoadTasksCommand.CanExecute(null))
             {
                 viewModel.LoadTasksCommand.Execute(null);
+                viewModel.LoadUsersCommand.Execute(null);
             }
         }
 

@@ -29,6 +29,64 @@ namespace TaskManagementSystem.ViewModels
         public IEnumerable<Status> Statuses => Enum.GetValues<Status>();
         public IEnumerable<TaskType> Types => Enum.GetValues<TaskType>();
 
+        public IEnumerable<FilterOption> StatusFilterOptions =>
+            new[] { new FilterOption("All", null) }
+                .Concat(Enum.GetValues<Status>().Select(v => new FilterOption(v.ToString(), v)));
+
+        public IEnumerable<FilterOption> TypeFilterOptions =>
+            new[] { new FilterOption("All", null) }
+                .Concat(Enum.GetValues<TaskType>().Select(v => new FilterOption(v.ToString(), v)));
+
+        public ObservableCollection<FilterOption> UserFilterOptions { get; } = new();
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasActiveFilters))]
+        private Status? _filterStatus;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasActiveFilters))]
+        private TaskType? _filterType;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasActiveFilters))]
+        private int? _filterUserId;
+
+        public bool HasActiveFilters =>
+            FilterStatus is not null || FilterType is not null || FilterUserId is not null;
+
+        [RelayCommand]
+        private void ClearFilters()
+        {
+            _suppressFilterReload = true;
+            FilterStatus = null;
+            FilterType = null;
+            FilterUserId = null;
+            _suppressFilterReload = false;
+
+            ReloadForFilter();
+        }
+
+        private bool _suppressFilterReload;
+
+        partial void OnFilterStatusChanged(Status? value) => ReloadForFilter();
+
+        partial void OnFilterTypeChanged(TaskType? value) => ReloadForFilter();
+
+        partial void OnFilterUserIdChanged(int? value) => ReloadForFilter();
+
+        private void ReloadForFilter()
+        {
+            if (_suppressFilterReload)
+            {
+                return;
+            }
+
+            if (LoadTasksCommand.CanExecute(null))
+            {
+                LoadTasksCommand.Execute(null);
+            }
+        }
+
         [ObservableProperty]
         private UserDto? _selectedUser;
 
@@ -78,7 +136,12 @@ namespace TaskManagementSystem.ViewModels
                 IsLoading = true;
                 ErrorMessage = null;
 
-                var data = await _taskService.GetAllAsync();
+                var data = await _taskService.GetAllAsync(new TaskFilter
+                {
+                    Status = FilterStatus,
+                    Type = FilterType,
+                    AssignedToUserId = FilterUserId
+                });
 
                 Tasks.Clear();
                 foreach (var item in data)
@@ -111,6 +174,13 @@ namespace TaskManagementSystem.ViewModels
                 }
 
                 SelectedUser ??= Users.FirstOrDefault();
+
+                UserFilterOptions.Clear();
+                UserFilterOptions.Add(new FilterOption("Anyone", null));
+                foreach (var user in users)
+                {
+                    UserFilterOptions.Add(new FilterOption(user.Name, user.Id));
+                }
             }
             catch (Exception ex)
             {

@@ -34,6 +34,14 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="FilterPlaceholderStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#6B7280"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="10,0,0,0"/>
+                <Setter Property="IsHitTestVisible" Value="False"/>
+            </Style>
+
             <Style TargetType="DataGrid">
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="BorderBrush" Value="#E5E7EB"/>
@@ -114,10 +122,33 @@
                 <TextBlock Grid.Column="0" Text="FILTER BY:" FontWeight="Bold" FontSize="11" Foreground="#9CA3AF" VerticalAlignment="Center" Margin="0,0,16,0"/>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Status: All  ▼" Foreground="#4B5563" Margin="0,0,24,0" Cursor="Hand"/>
-                    <TextBlock Text="Type: All  ▼" Foreground="#4B5563" Margin="0,0,24,0" Cursor="Hand"/>
-                    <TextBlock Text="Assigned: Anyone  ▼" Foreground="#4B5563" Cursor="Hand"/>
+                    <TextBlock Text="Status" Foreground="#6B7280" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding StatusFilterOptions}"
+                              DisplayMemberPath="Label"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding FilterStatus}"
+                              MinWidth="120" Margin="0,0,20,0" Padding="8,4"/>
+
+                    <TextBlock Text="Type" Foreground="#6B7280" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding TypeFilterOptions}"
+                              DisplayMemberPath="Label"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding FilterType}"
+                              MinWidth="140" Margin="0,0,20,0" Padding="8,4"/>
+
+                    <TextBlock Text="Assigned" Foreground="#6B7280" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <ComboBox ItemsSource="{Binding UserFilterOptions}"
+                              DisplayMemberPath="Label"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding FilterUserId}"
+                              MinWidth="140" Margin="0,0,20,0" Padding="8,4"/>
                 </StackPanel>
+
+                <Button Grid.Column="2" Content="Clear filters" Command="{Binding ClearFiltersCommand}"
+                        Background="Transparent" BorderThickness="0" Foreground="#2563EB"
+                        FontSize="12" FontWeight="SemiBold" Cursor="Hand"
+                        HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVisibility}}"/>
             </Grid>
         </Border>
 
