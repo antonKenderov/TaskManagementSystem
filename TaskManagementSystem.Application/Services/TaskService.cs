@@ -2,6 +2,7 @@
 using TaskManagementSystem.Application.DTOs;
 using TaskManagementSystem.Application.Interfaces;
 using TaskManagementSystem.Data;
+using TaskManagementSystem.Domain;
 
 namespace TaskManagementSystem.Application.Services
 {
@@ -13,6 +14,7 @@ namespace TaskManagementSystem.Application.Services
         {
             _dbContextFactory = dbContextFactory;
         }
+
 
         public async Task<IReadOnlyList<TaskTableItemDto>> GetAllAsync(
             CancellationToken cancellationToken = default)
@@ -32,6 +34,29 @@ namespace TaskManagementSystem.Application.Services
                     t.AssignedTo != null ? t.AssignedTo.Name : "Unassigned",
                     t.Comments.Min(c => c.ReminderDate)))
                 .ToListAsync(cancellationToken);
+        }
+
+        public async Task<int> CreateTaskAsync(NewTaskDto task, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(task.Description)) throw new ArgumentException("Description cannot be empty.", nameof(task.Description));
+            if (task.Description.Length > 2000) throw new ArgumentException("Description cannot exceed 2000 characters.", nameof(task.Description));
+            if (task.RequiredByDate < DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("RequiredByDate cannot be in the past.", nameof(task.RequiredByDate));
+
+            await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+            var newTask = new TaskItem
+            {
+                RequiredByDate = task.RequiredByDate,
+                Description = task.Description,
+                Status = task.Status,
+                Type = task.Type,
+                AssignedToUserId = task.AssignedToUserId
+            };
+
+            db.TaskItems.Add(newTask);
+            await db.SaveChangesAsync(cancellationToken);
+
+            return newTask.Id;
         }
     }
 }
