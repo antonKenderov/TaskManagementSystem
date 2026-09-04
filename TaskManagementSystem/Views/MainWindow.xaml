@@ -89,6 +89,24 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="32"/>
                         <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Left"
+                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" 
+                      Data="M3,13H11V21H3V13M3,3H11V11H3V3M13,13H21V21H13V13M13,3H21V11H13V3M5,5V9H9V5H5M15,5V9H19V5H15M5,15V19H9V15H5M15,15V19H19V15H15Z"/>
+
+                    <TextBlock Grid.Column="1" Text="Dashboard" FontSize="14" VerticalAlignment="Center"/>
+                </Grid>
+            </TabItem.Header>
+            <views:DashboardView DataContext="{Binding DashboardViewModel}"/>
+        </TabItem>
+
+        <TabItem Style="{StaticResource SidebarTabItemStyle}">
+            <TabItem.Header>
+                <Grid Width="200">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -123,24 +141,5 @@
             <views:SearchView DataContext="{Binding SearchViewModel}"/>
         </TabItem>
 
-        <TabItem Style="{StaticResource SidebarTabItemStyle}">
-            <TabItem.Header>
-                <Grid Width="200">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="32"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Path Grid.Column="0" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Left"
-                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}" 
-                      Data="M3,13H11V21H3V13M3,3H11V11H3V3M13,13H21V21H13V13M13,3H21V11H13V3M5,5V9H9V5H5M15,5V9H19V5H15M5,15V19H9V15H5M15,15V19H19V15H15Z"/>
-
-                    <TextBlock Grid.Column="1" Text="Dashboard" FontSize="14" VerticalAlignment="Center"/>
-                </Grid>
-            </TabItem.Header>
-            <Grid>
-
-            </Grid>
-        </TabItem>
     </TabControl>
 </Window>

@@ -52,11 +52,13 @@ namespace TaskManagementSystem
             services.AddSingleton<ITaskService, TaskService>();
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<ICommentService, CommentService>();
+            services.AddSingleton<IDashboardService, DashboardService>();
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<TasksViewModel>();
             services.AddSingleton<TaskDetailViewModel>();
             services.AddSingleton<SearchViewModel>();
+            services.AddSingleton<DashboardViewModel>();
 
             services.AddSingleton<MainWindow>();
         }

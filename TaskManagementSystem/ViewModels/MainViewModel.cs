@@ -1,15 +1,19 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace TaskManagementSystem.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private const int TasksTabIndex = 0;
+        private const int TasksTabIndex = 1;
 
-        public MainViewModel(TasksViewModel tasksViewModel, SearchViewModel searchViewModel)
+        public MainViewModel(
+            TasksViewModel tasksViewModel,
+            SearchViewModel searchViewModel,
+            DashboardViewModel dashboardViewModel)
         {
             TasksViewModel = tasksViewModel;
             SearchViewModel = searchViewModel;
+            DashboardViewModel = dashboardViewModel;
 
             SearchViewModel.OpenTask = OpenTaskFromSearchAsync;
         }
@@ -17,6 +21,8 @@ namespace TaskManagementSystem.ViewModels
         public TasksViewModel TasksViewModel { get; }
 
         public SearchViewModel SearchViewModel { get; }
+
+        public DashboardViewModel DashboardViewModel { get; }
 
         /// <summary>
         /// Drives the sidebar selection, so other screens can navigate here
