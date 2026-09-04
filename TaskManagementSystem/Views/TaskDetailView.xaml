@@ -80,8 +80,10 @@
                         <TextBlock Text="{Binding Task.Description}" FontSize="24" FontWeight="Bold" Foreground="#0F172A" Margin="0,0,0,8" TextTrimming="CharacterEllipsis"/>
 
                         <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="8" Height="8" Fill="#2563EB" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Task.Status}" FontWeight="SemiBold" Foreground="#2563EB" FontSize="13" Margin="0,0,12,0"/>
+                            <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                     Fill="{Binding Task.Status, Converter={StaticResource StatusToBrush}}"/>
+                            <TextBlock Text="{Binding Task.Status}" FontWeight="SemiBold" FontSize="13" Margin="0,0,12,0"
+                                       Foreground="{Binding Task.Status, Converter={StaticResource StatusToBrush}}"/>
                             <TextBlock Text="{Binding Task.Type}" FontWeight="SemiBold" Foreground="#64748B" FontSize="13"/>
                         </StackPanel>
                     </StackPanel>

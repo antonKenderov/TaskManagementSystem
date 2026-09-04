@@ -120,6 +120,7 @@
                                                Foreground="#334155" VerticalAlignment="Center"/>
 
                                     <ProgressBar Grid.Column="1" Style="{StaticResource StatusBarStyle}"
+                                                 Foreground="{Binding Status, Converter={StaticResource StatusToBrush}}"
                                                  Value="{Binding Count, Mode=OneWay}"
                                                  Maximum="{Binding DataContext.TotalTasks,
                                                            RelativeSource={RelativeSource AncestorType=ItemsControl},
@@ -165,10 +166,10 @@
                                                        Foreground="#94A3B8" Margin="0,3,0,0"/>
                                         </StackPanel>
 
-                                        <Border Grid.Column="2" Background="#E0F2FE" CornerRadius="10" Padding="10,3"
-                                                VerticalAlignment="Center">
+                                        <Border Grid.Column="2" CornerRadius="10" Padding="10,3" VerticalAlignment="Center"
+                                                Background="{Binding Status, Converter={StaticResource StatusToBrush}, ConverterParameter=Background}">
                                             <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold"
-                                                       Foreground="#0284C7"/>
+                                                       Foreground="{Binding Status, Converter={StaticResource StatusToBrush}}"/>
                                         </Border>
                                     </Grid>
                                 </Border>

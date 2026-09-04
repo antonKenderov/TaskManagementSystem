@@ -164,8 +164,10 @@
                 <DataGridTemplateColumn Header="STATUS" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Border Background="#E0F2FE" CornerRadius="10" Padding="8,2" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold" Foreground="#0284C7"/>
+                            <Border Background="{Binding Status, Converter={StaticResource StatusToBrush}, ConverterParameter=Background}"
+                                    CornerRadius="10" Padding="8,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold"
+                                           Foreground="{Binding Status, Converter={StaticResource StatusToBrush}}"/>
                             </Border>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
