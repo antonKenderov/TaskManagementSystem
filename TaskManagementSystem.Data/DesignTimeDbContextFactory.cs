@@ -15,8 +15,11 @@ namespace TaskManagementSystem.Data
             {
                 throw new InvalidOperationException(
                     $"The {ConnectionStringVariable} environment variable is not set. " +
-                    "Set it to the database connection string before running EF Core commands, e.g. " +
-                    "Host=localhost;Port=5433;Database=taskmanagement;Username=postgres;Password=...");
+                    "The EF Core tooling cannot read the application's appsettings.json, so it needs the " +
+                    "connection string here, for example " +
+                    "Host=localhost;Port=5433;Database=taskmanagement;Username=postgres;Password=... " +
+                    "Note that setx only affects new processes, so reopen the terminal or restart Visual Studio. " +
+                    "If you only need the schema, running db/schema.sql requires none of this - see the README.");
             }
 
             var options = new DbContextOptionsBuilder<TaskManagerDbContext>()

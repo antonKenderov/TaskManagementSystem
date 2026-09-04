@@ -39,29 +39,39 @@ container does not clash with a PostgreSQL installed on the host.
 
 ### 2. Create the schema
 
-Either apply the EF Core migrations:
-
-```bash
-dotnet ef database update --project TaskManagementSystem.Data --startup-project TaskManagementSystem.Data
-```
-
-In Visual Studio, the same thing from the Package Manager Console:
-
-```powershell
-Update-Database -Project TaskManagementSystem.Data -StartupProject TaskManagementSystem.Data
-```
-
-or run the generated script against the database:
+Run the script that ships with the repository:
 
 ```bash
 docker compose exec -T postgres psql -U postgres -d taskmanagement < db/schema.sql
 ```
 
-`db/schema.sql` is produced from the migrations with `--idempotent`, so it is safe
-to run more than once. Both routes seed four users, who are the people a task can
-be assigned to.
+`db/schema.sql` is generated from the EF Core migrations with `--idempotent`, so it
+is safe to run more than once. It creates the tables and seeds four users, who are
+the people a task can be assigned to. **This route needs no further setup.**
 
-To regenerate the script after a schema change:
+<details>
+<summary>Applying the migrations instead</summary>
+
+The EF Core tooling loads the data project on its own and cannot read the WPF
+application's `appsettings.json`, so it takes its connection string from an
+environment variable. Set it first:
+
+```bash
+setx TASKMANAGER_CONNECTION "Host=localhost;Port=5433;Database=taskmanagement;Username=postgres;Password=<your password>"
+```
+
+`setx` only affects processes started afterwards, so open a new terminal — or
+restart Visual Studio — before running either command below.
+
+```bash
+dotnet ef database update --project TaskManagementSystem.Data --startup-project TaskManagementSystem.Data
+```
+
+```powershell
+Update-Database -Project TaskManagementSystem.Data -StartupProject TaskManagementSystem.Data
+```
+
+To regenerate `db/schema.sql` after a schema change:
 
 ```bash
 dotnet ef migrations script --idempotent --output db/schema.sql --project TaskManagementSystem.Data --startup-project TaskManagementSystem.Data
@@ -71,14 +81,7 @@ dotnet ef migrations script --idempotent --output db/schema.sql --project TaskMa
 Script-Migration -Idempotent -Output db\schema.sql -Project TaskManagementSystem.Data -StartupProject TaskManagementSystem.Data
 ```
 
-The migration tooling reads its connection string from the `TASKMANAGER_CONNECTION`
-environment variable:
-
-```bash
-setx TASKMANAGER_CONNECTION "Host=localhost;Port=5433;Database=taskmanagement;Username=postgres;Password=<your password>"
-```
-
-Open a new terminal afterwards — `setx` only affects processes started later.
+</details>
 
 ### 3. Configure the application
 
