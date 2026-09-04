@@ -35,22 +35,14 @@ namespace TaskManagementSystem.Application.Services
 
             return await query
                 .OrderByDescending(t => t.CreatedAt)
-                .Select(t => new TaskTableItemDto(
-                    t.Id,
-                    t.CreatedAt,
-                    t.RequiredByDate,
-                    t.Description,
-                    t.Type,
-                    t.Status,
-                    t.AssignedTo != null ? t.AssignedTo.Name : "Unassigned",
-                    t.Comments.Min(c => c.ReminderDate)))
+                .Select(TaskProjections.ToTableItem)
                 .ToListAsync(cancellationToken);
         }
 
         public async Task<int> CreateTaskAsync(NewTaskDto task, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(task.Description)) throw new ArgumentException("Description cannot be empty.", nameof(task.Description));
-            if (task.Description.Length > 2000) throw new ArgumentException("Description cannot exceed 2000 characters.", nameof(task.Description));
+            ValidateDescription(task.Description);
+
             if (task.RequiredByDate < DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("RequiredByDate cannot be in the past.", nameof(task.RequiredByDate));
 
             await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -110,8 +102,7 @@ namespace TaskManagementSystem.Application.Services
 
         public async Task UpdateTaskAsync(UpdateTaskDto task, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(task.Description)) throw new ArgumentException("Description cannot be empty.", nameof(task.Description));
-            if (task.Description.Length > 2000) throw new ArgumentException("Description cannot exceed 2000 characters.", nameof(task.Description));
+            ValidateDescription(task.Description);
 
             await using var db = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -125,6 +116,12 @@ namespace TaskManagementSystem.Application.Services
             existing.AssignedToUserId = task.AssignedToUserId;
 
             await db.SaveChangesAsync(cancellationToken);
+        }
+
+        private static void ValidateDescription(string description)
+        {
+            if (string.IsNullOrWhiteSpace(description)) throw new ArgumentException("Description cannot be empty.", nameof(description));
+            if (description.Length > 2000) throw new ArgumentException("Description cannot exceed 2000 characters.", nameof(description));
         }
     }
 }

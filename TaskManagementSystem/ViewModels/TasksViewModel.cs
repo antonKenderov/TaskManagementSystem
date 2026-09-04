@@ -99,7 +99,12 @@ namespace TaskManagementSystem.ViewModels
         [ObservableProperty]
         private TaskTableItemDto? _selectedTask;
 
-        public DateTime CurrentTime => DateTime.Now;
+        /// <summary>
+        /// Shown on the new task form as a preview. The value the database records
+        /// is stamped by SaveChanges, so this is only refreshed when the form opens.
+        /// </summary>
+        [ObservableProperty]
+        private DateTime _createdAtPreview = DateTime.Now;
 
         [ObservableProperty]
         private bool _isDetailsVisible;
@@ -273,6 +278,7 @@ namespace TaskManagementSystem.ViewModels
             await LoadUsersAsync();
 
             ResetNewTaskForm();
+            CreatedAtPreview = DateTime.Now;
             IsPopupOpen = true;
         }
 

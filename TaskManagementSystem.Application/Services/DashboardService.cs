@@ -61,15 +61,7 @@ namespace TaskManagementSystem.Application.Services
                 .AsNoTracking()
                 .Where(t => t.Status != Status.Closed && t.RequiredByDate <= cutoff)
                 .OrderBy(t => t.RequiredByDate)
-                .Select(t => new TaskTableItemDto(
-                    t.Id,
-                    t.CreatedAt,
-                    t.RequiredByDate,
-                    t.Description,
-                    t.Type,
-                    t.Status,
-                    t.AssignedTo != null ? t.AssignedTo.Name : "Unassigned",
-                    t.Comments.Min(c => c.ReminderDate)))
+                .Select(TaskProjections.ToTableItem)
                 .ToListAsync(cancellationToken);
         }
     }
