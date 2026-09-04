@@ -15,7 +15,7 @@ across every task, and a dashboard summarises the current state of the work.
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - PostgreSQL 17 — either through Docker Desktop, or an existing server
 
----
+---Move the form state into NewTaskViewModel and CommentComposerViewModel. Each owns its fields, its validation and its own saving flag, and reports back through a callback the parent fills in - the same shape already used for opening a task from search, and for the same reason: a reference the other way would make the constructors circular.
 
 ## Getting started
 
@@ -168,9 +168,10 @@ form for creating a task. Clicking a row opens its detail.
 **Task detail** — edit the task's fields, and add, edit or delete its comments. The
 next action date recalculates as comments change.
 
-**Search** — search every comment by keyword, showing the task each comment belongs
-to. Double-clicking a result opens that task. With an empty box the four most
-recent comments are listed.
+**Search** — filter comments by keyword, comment type, when they were added and
+when they remind, showing the task each comment belongs to. Double-clicking a
+result opens that task. With no filters set, the four most recent comments are
+listed.
 
 ---
 
@@ -178,6 +179,9 @@ recent comments are listed.
 
 The task description left some things open. These are the readings I worked to:
 
+- **"Keep track of changes (updates should be saved)"** was read as persisting
+  edits, with `ModifiedAt` and `ModifiedBy` on tasks and comments, rather than a
+  full version history.
 - **There is no authentication**, so `ModifiedBy` records the Windows user name.
 - **The user list is fixed.** Four users are seeded by the migration; the task
   allowed either a fixed or an editable list.
@@ -194,6 +198,7 @@ The task description left some things open. These are the readings I worked to:
 
 - **Search has no upper bound on results.** Fine at this scale; a real deployment
   would page.
-- **Two event handlers live in code-behind** — one to trigger the initial load when
-  a view appears, one to open a task from a grid row. WPF has no built-in way to
-  bind an event to a command; `Microsoft.Xaml.Behaviors.Wpf` would remove both.
+- **Loading and row clicks are wired in code-behind.** Each screen triggers its
+  initial load from a `Loaded` handler, and the task list opens a row from
+  `PreviewMouseLeftButtonUp`. WPF has no built-in way to bind an event to a
+  command; `Microsoft.Xaml.Behaviors.Wpf` would remove them.
