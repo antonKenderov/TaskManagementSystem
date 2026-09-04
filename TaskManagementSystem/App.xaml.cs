@@ -56,7 +56,9 @@ namespace TaskManagementSystem
 
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<TasksViewModel>();
+            services.AddSingleton<CommentComposerViewModel>();
             services.AddSingleton<TaskDetailViewModel>();
+            services.AddSingleton<NewTaskViewModel>();
             services.AddSingleton<SearchViewModel>();
             services.AddSingleton<DashboardViewModel>();
 

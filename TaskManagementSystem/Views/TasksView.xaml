@@ -103,7 +103,7 @@
 
             <TextBlock Text="All Tasks" FontSize="24" FontWeight="Bold" Foreground="#111827" VerticalAlignment="Center"/>
 
-            <Button Command="{Binding OpenPopupCommand}" Grid.Column="1" Style="{StaticResource PrimaryButtonStyle}">
+            <Button Command="{Binding NewTask.OpenCommand}" Grid.Column="1" Style="{StaticResource PrimaryButtonStyle}">
                 <StackPanel Orientation="Horizontal">
                     <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="White" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
                     <TextBlock Text="New Task" VerticalAlignment="Center"/>
@@ -193,9 +193,10 @@
 
         <Grid Grid.Row="0" Grid.RowSpan="4"
               Background="#80000000"
-              Visibility="{Binding IsPopupOpen, Converter={StaticResource BoolToVisibility}}">
+              Visibility="{Binding NewTask.IsOpen, Converter={StaticResource BoolToVisibility}}">
 
             <Border Width="680" Background="White" CornerRadius="8"
+                    DataContext="{Binding NewTask}"
                     VerticalAlignment="Center" HorizontalAlignment="Center">
 
                 <Border.Effect>
@@ -222,7 +223,7 @@
 
                             <TextBlock Grid.Column="1" Text="New Task" Foreground="White" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
 
-                            <Button Grid.Column="2" Command="{Binding ClosePopupCommand}"
+                            <Button Grid.Column="2" Command="{Binding CloseCommand}"
                                     Background="Transparent" BorderThickness="0" Cursor="Hand">
                                 <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
                                       Fill="#94A3B8" Width="14" Height="14" Stretch="Uniform"/>
@@ -255,10 +256,10 @@
                                 <Run Text="Description "/>
                                 <Run Text="*" Foreground="#EF4444"/>
                             </TextBlock>
-                            <TextBlock Text="{Binding NewTaskDescription.Length, FallbackValue=0, StringFormat={}{0} / 2000}"
+                            <TextBlock Text="{Binding Description.Length, FallbackValue=0, StringFormat={}{0} / 2000}"
                                        Foreground="#9CA3AF" HorizontalAlignment="Right" FontSize="11" VerticalAlignment="Bottom"/>
                         </Grid>
-                        <TextBox Text="{Binding NewTaskDescription, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                                  MaxLength="2000"
                                  Height="80" TextWrapping="Wrap" AcceptsReturn="True"
                                  BorderBrush="#D1D5DB" BorderThickness="1" Padding="10" Foreground="#374151"
@@ -282,7 +283,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
                                 <Run Text="Required By Date "/><Run Text="*" Foreground="#EF4444"/>
                             </TextBlock>
-                            <DatePicker SelectedDate="{Binding NewTaskRequiredBy}"
+                            <DatePicker SelectedDate="{Binding RequiredBy}"
                                         Grid.Row="1" Grid.Column="0" BorderBrush="#D1D5DB" Padding="4" Foreground="#374151"/>
 
                             <TextBlock Grid.Row="0" Grid.Column="2" FontWeight="SemiBold" Foreground="#4B5563" Margin="0,0,0,8">
@@ -329,11 +330,11 @@
                             </TextBlock>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Content="Cancel" Command="{Binding ClosePopupCommand}"
+                            <Button Content="Cancel" Command="{Binding CloseCommand}"
                                     Background="White" BorderBrush="#D1D5DB" BorderThickness="1"
                                     Foreground="#374151" FontWeight="SemiBold" Padding="16,8" Cursor="Hand" Margin="0,0,12,0"/>
 
-                            <Button Command="{Binding CreateTaskCommand}"
+                            <Button Command="{Binding CreateCommand}"
                                     Background="#2C364C" BorderThickness="0" Foreground="White" FontWeight="SemiBold"
                                     Padding="16,8" Cursor="Hand">
                                 <StackPanel Orientation="Horizontal">

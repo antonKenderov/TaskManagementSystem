@@ -11,21 +11,26 @@ namespace TaskManagementSystem.ViewModels
     {
         private readonly ITaskService _taskService;
         private readonly IUserService _userService;
-        private readonly ICommentService _commentService;
 
-        public TaskDetailViewModel(ITaskService taskService, IUserService userService, ICommentService commentService)
+        public TaskDetailViewModel(
+            ITaskService taskService,
+            IUserService userService,
+            CommentComposerViewModel composer)
         {
             _taskService = taskService;
             _userService = userService;
-            _commentService = commentService;
+            Composer = composer;
+
+            Composer.CommentsChanged = ReloadAsync;
         }
+
+        public CommentComposerViewModel Composer { get; }
 
         public ObservableCollection<CommentDto> Comments { get; } = new();
         public ObservableCollection<UserDto> Users { get; } = new();
 
         public IEnumerable<Status> Statuses => Enum.GetValues<Status>();
         public IEnumerable<TaskType> Types => Enum.GetValues<TaskType>();
-        public IEnumerable<CommentType> CommentTypes => Enum.GetValues<CommentType>();
 
         [ObservableProperty]
         private TaskDetailDto? _task;
@@ -65,25 +70,6 @@ namespace TaskManagementSystem.ViewModels
         [ObservableProperty]
         private string? _errorMessage;
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(SaveCommentCommand))]
-        private string? _newCommentText;
-
-        [ObservableProperty]
-        private CommentType _newCommentType = CommentType.InternalNote;
-
-        [ObservableProperty]
-        private DateTime? _newCommentReminder;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(SaveCommentCommand))]
-        private bool _isPostingComment;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsEditingComment))]
-        [NotifyPropertyChangedFor(nameof(CommentSubmitLabel))]
-        private CommentDto? _editingComment;
-
         private int? _loadedTaskId;
 
         public string FormattedTaskId => Task is null ? string.Empty : $"TSK-{Task.Id:D4}";
@@ -100,12 +86,6 @@ namespace TaskManagementSystem.ViewModels
              || SelectedUser?.Id != Task.AssignedToUserId);
 
         private bool CanSaveChanges => !IsSaving && HasChanges;
-
-        public bool IsEditingComment => EditingComment is not null;
-
-        public string CommentSubmitLabel => IsEditingComment ? "Save comment" : "Post comment";
-
-        private bool CanSaveComment => !IsPostingComment && !string.IsNullOrWhiteSpace(NewCommentText);
 
         public async Task LoadAsync(int id, CancellationToken cancellationToken = default)
         {
@@ -125,6 +105,7 @@ namespace TaskManagementSystem.ViewModels
 
                 _loadedTaskId = id;
                 Task = detail;
+                Composer.TaskId = id;
 
                 Comments.Clear();
                 foreach (var comment in detail.Comments)
@@ -186,116 +167,6 @@ namespace TaskManagementSystem.ViewModels
             await LoadAsync(taskId);
         }
 
-        [RelayCommand(CanExecute = nameof(CanSaveComment))]
-        private async Task SaveCommentAsync()
-        {
-            if (Task is null || string.IsNullOrWhiteSpace(NewCommentText))
-            {
-                return;
-            }
-
-            var taskId = Task.Id;
-            var reminder = NewCommentReminder is null
-                ? (DateOnly?)null
-                : DateOnly.FromDateTime(NewCommentReminder.Value);
-
-            try
-            {
-                IsPostingComment = true;
-                ErrorMessage = null;
-
-                if (EditingComment is null)
-                {
-                    await _commentService.CreateCommentAsync(new NewCommentDto
-                    {
-                        TaskItemId = taskId,
-                        Text = NewCommentText,
-                        Type = NewCommentType,
-                        ReminderDate = reminder
-                    });
-                }
-                else
-                {
-                    await _commentService.UpdateCommentAsync(new UpdateCommentDto
-                    {
-                        Id = EditingComment.Id,
-                        Text = NewCommentText,
-                        Type = NewCommentType,
-                        ReminderDate = reminder
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Could not save the comment: {ex.Message}";
-                return;
-            }
-            finally
-            {
-                IsPostingComment = false;
-            }
-
-            ResetNewCommentForm();
-            await LoadAsync(taskId);
-        }
-
-        [RelayCommand]
-        private void BeginEditComment(CommentDto? comment)
-        {
-            if (comment is null)
-            {
-                return;
-            }
-
-            EditingComment = comment;
-            NewCommentText = comment.Text;
-            NewCommentType = comment.Type;
-            NewCommentReminder = comment.ReminderDate?.ToDateTime(TimeOnly.MinValue);
-            ErrorMessage = null;
-        }
-
-        [RelayCommand]
-        private void CancelCommentEdit()
-        {
-            ResetNewCommentForm();
-            ErrorMessage = null;
-        }
-
-        [RelayCommand]
-        private async Task DeleteCommentAsync(CommentDto? comment)
-        {
-            if (Task is null || comment is null)
-            {
-                return;
-            }
-
-            var taskId = Task.Id;
-
-            try
-            {
-                IsPostingComment = true;
-                ErrorMessage = null;
-
-                await _commentService.DeleteCommentAsync(comment.Id);
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Could not delete the comment: {ex.Message}";
-                return;
-            }
-            finally
-            {
-                IsPostingComment = false;
-            }
-
-            if (EditingComment?.Id == comment.Id)
-            {
-                ResetNewCommentForm();
-            }
-
-            await LoadAsync(taskId);
-        }
-
         [RelayCommand]
         private void CancelChanges()
         {
@@ -335,20 +206,12 @@ namespace TaskManagementSystem.ViewModels
             SaveChangesCommand.NotifyCanExecuteChanged();
         }
 
-        private void ResetNewCommentForm()
-        {
-            EditingComment = null;
-            NewCommentText = null;
-            NewCommentType = CommentType.InternalNote;
-            NewCommentReminder = null;
-        }
-
         private void Clear()
         {
             Task = null;
             Comments.Clear();
             Users.Clear();
-            ResetNewCommentForm();
+            Composer.Reset();
             _loadedTaskId = null;
             ResetEditableFields();
             NotifyDerived();

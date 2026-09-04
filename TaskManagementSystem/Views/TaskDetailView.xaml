@@ -230,12 +230,12 @@
                                             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                                 <Button Content="Edit"
                                                         Style="{StaticResource CommentLinkStyle}"
-                                                        Command="{Binding DataContext.BeginEditCommentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        Command="{Binding DataContext.Composer.BeginEditCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
                                                 <Button Content="Delete"
                                                         Style="{StaticResource CommentLinkStyle}"
                                                         Foreground="#DC2626"
-                                                        Command="{Binding DataContext.DeleteCommentCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        Command="{Binding DataContext.Composer.DeleteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}"/>
                                             </StackPanel>
                                         </StackPanel>
@@ -244,8 +244,8 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <StackPanel Grid.Row="2">
-                            <TextBox Text="{Binding NewCommentText, UpdateSourceTrigger=PropertyChanged}"
+                        <StackPanel Grid.Row="2" DataContext="{Binding Composer}">
+                            <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
                                      MaxLength="3000"
                                      Height="60" TextWrapping="Wrap" AcceptsReturn="True"
                                      Padding="8" Margin="0,0,0,8"/>
@@ -260,21 +260,21 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Comment type" Style="{StaticResource FieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding CommentTypes}"
-                                              SelectedItem="{Binding NewCommentType}" Padding="8,6"/>
+                                              SelectedItem="{Binding Type}" Padding="8,6"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Reminder date" Style="{StaticResource FieldLabelStyle}"/>
-                                    <DatePicker SelectedDate="{Binding NewCommentReminder}" Padding="6,4"/>
+                                    <DatePicker SelectedDate="{Binding Reminder}" Padding="6,4"/>
                                 </StackPanel>
                             </Grid>
 
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="{Binding CommentSubmitLabel}" Command="{Binding SaveCommentCommand}"
+                                <Button Content="{Binding SubmitLabel}" Command="{Binding SaveCommand}"
                                         Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
                                         Foreground="#334155" FontWeight="SemiBold" Padding="12,6" Cursor="Hand"/>
-                                <Button Content="Cancel edit" Command="{Binding CancelCommentEditCommand}"
-                                        Visibility="{Binding IsEditingComment, Converter={StaticResource BoolToVisibility}}"
+                                <Button Content="Cancel edit" Command="{Binding CancelEditCommand}"
+                                        Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibility}}"
                                         Background="Transparent" BorderThickness="0"
                                         Foreground="#64748B" FontWeight="SemiBold" Padding="12,6" Cursor="Hand"/>
                             </StackPanel>

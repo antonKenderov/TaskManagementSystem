@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using TaskManagementSystem.Application.DTOs;
@@ -12,22 +12,29 @@ namespace TaskManagementSystem.ViewModels
         private readonly ITaskService _taskService;
         private readonly IUserService _userService;
 
+        private bool _suppressFilterReload;
+
         public TasksViewModel(
             ITaskService taskService,
             IUserService userService,
-            TaskDetailViewModel taskDetail)
+            TaskDetailViewModel taskDetail,
+            NewTaskViewModel newTask)
         {
             _taskService = taskService;
             _userService = userService;
             TaskDetail = taskDetail;
+            NewTask = newTask;
+
+            NewTask.TaskCreated = LoadTasksAsync;
         }
 
         public TaskDetailViewModel TaskDetail { get; }
 
+        public NewTaskViewModel NewTask { get; }
+
         public ObservableCollection<TaskTableItemDto> Tasks { get; } = new();
-        public ObservableCollection<UserDto> Users { get; } = new();
-        public IEnumerable<Status> Statuses => Enum.GetValues<Status>();
-        public IEnumerable<TaskType> Types => Enum.GetValues<TaskType>();
+
+        public ObservableCollection<FilterOption> UserFilterOptions { get; } = new();
 
         public IEnumerable<FilterOption> StatusFilterOptions =>
             new[] { new FilterOption("All", null) }
@@ -36,8 +43,6 @@ namespace TaskManagementSystem.ViewModels
         public IEnumerable<FilterOption> TypeFilterOptions =>
             new[] { new FilterOption("All", null) }
                 .Concat(Enum.GetValues<TaskType>().Select(v => new FilterOption(v.ToString(), v)));
-
-        public ObservableCollection<FilterOption> UserFilterOptions { get; } = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasActiveFilters))]
@@ -51,60 +56,8 @@ namespace TaskManagementSystem.ViewModels
         [NotifyPropertyChangedFor(nameof(HasActiveFilters))]
         private int? _filterUserId;
 
-        public bool HasActiveFilters =>
-            FilterStatus is not null || FilterType is not null || FilterUserId is not null;
-
-        [RelayCommand]
-        private void ClearFilters()
-        {
-            _suppressFilterReload = true;
-            FilterStatus = null;
-            FilterType = null;
-            FilterUserId = null;
-            _suppressFilterReload = false;
-
-            ReloadForFilter();
-        }
-
-        private bool _suppressFilterReload;
-
-        partial void OnFilterStatusChanged(Status? value) => ReloadForFilter();
-
-        partial void OnFilterTypeChanged(TaskType? value) => ReloadForFilter();
-
-        partial void OnFilterUserIdChanged(int? value) => ReloadForFilter();
-
-        private void ReloadForFilter()
-        {
-            if (_suppressFilterReload)
-            {
-                return;
-            }
-
-            if (LoadTasksCommand.CanExecute(null))
-            {
-                LoadTasksCommand.Execute(null);
-            }
-        }
-
-        [ObservableProperty]
-        private UserDto? _selectedUser;
-
-        [ObservableProperty]
-        private Status _selectedStatus = Status.Open;
-
-        [ObservableProperty]
-        private TaskType _selectedType = TaskType.FeatureRequest;
-
         [ObservableProperty]
         private TaskTableItemDto? _selectedTask;
-
-        /// <summary>
-        /// Shown on the new task form as a preview. The value the database records
-        /// is stamped by SaveChanges, so this is only refreshed when the form opens.
-        /// </summary>
-        [ObservableProperty]
-        private DateTime _createdAtPreview = DateTime.Now;
 
         [ObservableProperty]
         private bool _isDetailsVisible;
@@ -114,24 +67,12 @@ namespace TaskManagementSystem.ViewModels
         private bool _isLoading;
 
         [ObservableProperty]
-        private bool _isPopupOpen;
-
-        [ObservableProperty]
         private string? _errorMessage;
 
-        [ObservableProperty]
-        private string? _newTaskDescription;
-
-        [ObservableProperty]
-        private DateTime? _newTaskRequiredBy;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(CreateTaskCommand))]
-        private bool _isSaving;
+        public bool HasActiveFilters =>
+            FilterStatus is not null || FilterType is not null || FilterUserId is not null;
 
         private bool CanLoadTasks => !IsLoading;
-
-        private bool CanCreateTask => !IsSaving;
 
         [RelayCommand(CanExecute = nameof(CanLoadTasks))]
         private async Task LoadTasksAsync()
@@ -166,19 +107,11 @@ namespace TaskManagementSystem.ViewModels
         }
 
         [RelayCommand]
-        private async Task LoadUsersAsync()
+        private async Task LoadFilterUsersAsync()
         {
             try
             {
                 var users = await _userService.GetAllAsync();
-
-                Users.Clear();
-                foreach (var user in users)
-                {
-                    Users.Add(user);
-                }
-
-                SelectedUser ??= Users.FirstOrDefault();
 
                 UserFilterOptions.Clear();
                 UserFilterOptions.Add(new FilterOption("Anyone", null));
@@ -189,60 +122,21 @@ namespace TaskManagementSystem.ViewModels
             }
             catch (Exception ex)
             {
-                Users.Clear();
-                SelectedUser = null;
+                UserFilterOptions.Clear();
                 ErrorMessage = $"Could not load the users: {ex.Message}";
             }
         }
 
-        [RelayCommand(CanExecute = nameof(CanCreateTask))]
-        private async Task CreateTaskAsync()
+        [RelayCommand]
+        private void ClearFilters()
         {
-            if (string.IsNullOrWhiteSpace(NewTaskDescription))
-            {
-                ErrorMessage = "Please enter a description.";
-                return;
-            }
+            _suppressFilterReload = true;
+            FilterStatus = null;
+            FilterType = null;
+            FilterUserId = null;
+            _suppressFilterReload = false;
 
-            if (NewTaskRequiredBy is null)
-            {
-                ErrorMessage = "Please pick a required by date.";
-                return;
-            }
-
-            if (SelectedUser is null)
-            {
-                ErrorMessage = "Please select a user to assign the task to.";
-                return;
-            }
-
-            try
-            {
-                IsSaving = true;
-                ErrorMessage = null;
-
-                var newTask = new NewTaskDto
-                {
-                    Description = NewTaskDescription,
-                    RequiredByDate = DateOnly.FromDateTime(NewTaskRequiredBy.Value),
-                    Type = SelectedType,
-                    Status = SelectedStatus,
-                    AssignedToUserId = SelectedUser.Id
-                };
-
-                await _taskService.CreateTaskAsync(newTask);
-
-                ClosePopup();
-                await LoadTasksAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Could not create the task: {ex.Message}";
-            }
-            finally
-            {
-                IsSaving = false;
-            }
+            ReloadForFilter();
         }
 
         [RelayCommand]
@@ -253,8 +147,7 @@ namespace TaskManagementSystem.ViewModels
                 return;
             }
 
-            await TaskDetail.LoadAsync(SelectedTask.Id);
-            IsDetailsVisible = true;
+            await OpenTaskAsync(SelectedTask.Id);
         }
 
         public async Task OpenTaskAsync(int taskId)
@@ -270,31 +163,23 @@ namespace TaskManagementSystem.ViewModels
             await LoadTasksAsync();
         }
 
-        [RelayCommand]
-        private async Task OpenPopupAsync()
-        {
-            // The assignee list is only needed by the form, so it is fetched when
-            // the form opens rather than kept in step with the task list.
-            await LoadUsersAsync();
+        partial void OnFilterStatusChanged(Status? value) => ReloadForFilter();
 
-            ResetNewTaskForm();
-            CreatedAtPreview = DateTime.Now;
-            IsPopupOpen = true;
-        }
+        partial void OnFilterTypeChanged(TaskType? value) => ReloadForFilter();
 
-        [RelayCommand]
-        private void ClosePopup()
-        {
-            IsPopupOpen = false;
-        }
+        partial void OnFilterUserIdChanged(int? value) => ReloadForFilter();
 
-        private void ResetNewTaskForm()
+        private void ReloadForFilter()
         {
-            NewTaskDescription = null;
-            NewTaskRequiredBy = null;
-            SelectedStatus = Status.Open;
-            SelectedType = TaskType.FeatureRequest;
-            ErrorMessage = null;
+            if (_suppressFilterReload)
+            {
+                return;
+            }
+
+            if (LoadTasksCommand.CanExecute(null))
+            {
+                LoadTasksCommand.Execute(null);
+            }
         }
     }
 }
